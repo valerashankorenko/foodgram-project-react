@@ -9,7 +9,7 @@ User = get_user_model()
 
 
 class RecipesApiTestCase(APITransactionTestCase):
-    """Тесты api рецептов."""
+    """Тесты api рецептов.Нужно сделать больше тестов"""
 
     @classmethod
     def setUpClass(cls):
