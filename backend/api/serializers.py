@@ -6,7 +6,7 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_base64.fields import Base64ImageField
 from recipes.models import (Favorite, Ingredient, IngredientInRecipes, Recipe,
                             ShoppingList, Tag)
-from rest_framework import exceptions, serializers
+from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from users.models import Subscription
 
