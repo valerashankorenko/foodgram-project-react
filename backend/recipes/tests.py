@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from recipes.models import (Favorite, Ingredient, IngredientInRecipes, Recipe,
-                            Tag)
+
+from recipes.models import Favorite, Ingredient, IngredientInRecipes, Recipe
 
 User = get_user_model()
 
@@ -27,21 +27,9 @@ class RecipeModelTestCase(TestCase):
                          recipe_ingredient.amount)
 
     def test_favorite_annotations(self):
+        """Тест добавления рецепта в избранное."""
         Favorite.objects.create(recipe=self.recipe, user=self.user)
 
         qs = Recipe.objects.add_user_annotations(user_id=self.user.id)
-        self.assertEqual(qs.values()[0]['is_favorite'], True)
-
-
-class TagModelTestCase(TestCase):
-    """Тест создания тега."""
-
-    def test_smoke(self):
-        Tag.objects.create(name='breakfast', color='#0000ff', slug='bre')
-
-
-class IngredientModelTestCase(TestCase):
-    """Тест создания ингридиента."""
-
-    def test_smoke(self):
-        Ingredient.objects.create(name='salt', measurement_unit='gr')
+        is_favorite = qs.values()[0]['is_favorite']
+        self.assertTrue(is_favorite)

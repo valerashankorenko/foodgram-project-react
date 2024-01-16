@@ -1,7 +1,8 @@
 from typing import Optional
 
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import (MaxValueValidator, MinValueValidator,
+                                    RegexValidator)
 from django.db import models
 from django.db.models import Exists, OuterRef
 
@@ -15,11 +16,13 @@ class Tag(models.Model):
     name = models.CharField(
         'Название тега',
         max_length=200,
+        unique=True,
     )
     color = models.CharField(
         'Цветовой код',
         max_length=7,
         help_text='HEX формат цветового кода (#RRGGBB)',
+        unique=True,
         validators=[
             RegexValidator(
                 regex=r'^#(?:[0-9a-fA-F]{3}){1,2}$',
@@ -31,18 +34,10 @@ class Tag(models.Model):
     slug = models.SlugField(
         'Слаг',
         max_length=200,
-        validators=[
-            RegexValidator(
-                regex=r'^[-a-zA-Z0-9_]+$'
-            )
-        ],
+        unique=True,
     )
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'color', 'slug'],
-                                    name='unique_tag')
-        ]
         verbose_name = 'тег'
         verbose_name_plural = 'Теги'
 
@@ -121,10 +116,12 @@ class Recipe(models.Model):
     text = models.TextField(
         'Описание'
     )
-    cooking_time = models.PositiveIntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         'Время приготовления (в минутах)',
-        validators=[MinValueValidator(
-            1, message='Не менее одной минуты')]
+        validators=(
+            MinValueValidator(1, message='Не менее одной минуты'),
+            MaxValueValidator(1440, message='Не более 1440 минут')
+        )
     )
     pub_date = models.DateTimeField(
         'Дата создания рецепта',
@@ -160,7 +157,7 @@ class IngredientInRecipes(models.Model):
         verbose_name='ингредиент'
     )
 
-    amount = models.PositiveIntegerField(
+    amount = models.PositiveSmallIntegerField(
         'Количество',
         validators=[MinValueValidator(
             1, message='Введите положительное число')]

@@ -28,9 +28,13 @@ class User(AbstractUser):
     is_subscribed = models.BooleanField(
         'Подписка',
         default=False)
+    password = models.CharField(
+        'Пароль',
+        max_length=150,
+    )
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    REQUIRED_FIELDS = ('username', 'first_name', 'last_name')
 
     class Meta:
         ordering = ('id',)
