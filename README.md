@@ -1,8 +1,3 @@
-Данные для ревьюера
-130.193.54.125 или foodgramorsha.ddns.net
-админка:
-логин valerashankorenko@yandex.by
-пароль 1990256Rum
 # Проект FOODGRAM
 
 ## Автор проекта:

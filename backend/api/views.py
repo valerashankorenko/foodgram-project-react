@@ -34,11 +34,23 @@ class CustomUserViewSet(UserViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = CustomPagination
 
-    @action(detail=False, methods=['get'],
+    def partial_update(self, request, *args, **kwargs):
+        user_id = kwargs.get('pk')
+        user = self.request.user
+
+        if user_id != user.id:
+            return Response(
+                {'detail': 'Вы не можете обновить чужой профиль.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().partial_update(request, *args, **kwargs)
+
+    @action(detail=False, methods=('get', 'patch'),
             pagination_class=None,
             permission_classes=(IsAuthenticated,))
     def me(self, request):
-        """Метод для просмотра своего профиля."""
+        """Метод для просмотра и обновления своего профиля."""
         return Response(
             CustomUserSerializer(request.user).data,
             status=status.HTTP_200_OK)

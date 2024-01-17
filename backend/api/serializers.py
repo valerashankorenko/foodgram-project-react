@@ -82,7 +82,7 @@ class SubscriptionSerializer(CustomUserSerializer):
             author_recipes = author_recipes[:int(recipes_limit)]
 
         if author_recipes:
-            serializer = SmallRecipeSerializer()(
+            serializer = SmallRecipeSerializer(
                 author_recipes,
                 context={'request': self.context.get('request')},
                 many=True
