@@ -18,8 +18,15 @@ class IngredientAdmin(admin.ModelAdmin):
     list_filter = ('name',)
 
 
+class IngredientInRecipesInline(admin.TabularInline):
+    model = IngredientInRecipes
+    extra = 1
+    min_num = 1
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
+    inlines = [IngredientInRecipesInline]
     list_display = ('name', 'author_name', 'count_favorited')
     list_filter = ('author', 'tags')
     search_fields = ('name',)
@@ -57,7 +64,7 @@ class FavoriteAdmin(admin.ModelAdmin):
     list_filter = ('user', 'recipe')
 
     def user_favorite_display(self, obj):
-        return f'{obj.user.username} - {obj.recipes.name}'
+        return f'{obj.user.username} - {obj.recipe.name}'
 
 
 @admin.register(ShoppingList)

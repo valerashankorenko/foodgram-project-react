@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import RegexValidator, ValidationError
+from django.core.validators import (MaxLengthValidator, RegexValidator,
+                                    ValidationError)
 from django.db import models
 
 
@@ -15,7 +16,7 @@ class User(AbstractUser):
         'Уникальный юзернейм',
         max_length=150,
         unique=True,
-        validators=[RegexValidator(regex=r'^[\w.@+-]+$')],
+        validators=(RegexValidator(regex=r'^[\w.@+-]+$'),),
     )
     first_name = models.CharField(
         'Имя',
@@ -31,6 +32,7 @@ class User(AbstractUser):
     password = models.CharField(
         'Пароль',
         max_length=150,
+        validators=(MaxLengthValidator(150),),
     )
 
     USERNAME_FIELD = 'email'

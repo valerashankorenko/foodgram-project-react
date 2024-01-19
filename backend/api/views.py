@@ -1,3 +1,15 @@
+from django.contrib.auth import get_user_model
+from django.db.models import Sum
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from djoser.views import UserViewSet
+from rest_framework import exceptions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import (AllowAny, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
+
 from api.mixins import TagIngredientMixin
 from api.pagination import CustomPagination
 from api.permissions import IsAuthorOrAdminPermission
@@ -5,19 +17,8 @@ from api.serializers import (CustomUserSerializer, IngredientSerializer,
                              RecipeCreateUpdateSerializer, RecipeSerializer,
                              SmallRecipeSerializer, SubscriptionSerializer,
                              TagSerializer)
-from django.contrib.auth import get_user_model
-from django.db.models import Sum
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from djoser.views import UserViewSet
 from recipes.models import (Favorite, Ingredient, IngredientInRecipes, Recipe,
                             ShoppingList, Tag)
-from rest_framework import exceptions, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.permissions import (AllowAny, IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
-from rest_framework.response import Response
 from users.models import Subscription
 
 from .filters import IngredientFilter, RecipeFilter
@@ -99,15 +100,11 @@ class CustomUserViewSet(UserViewSet):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        elif request.method == 'DELETE':
-            subscription = get_object_or_404(
-                Subscription, user=user, author=author)
-            subscription.delete()
+        subscription = get_object_or_404(
+            Subscription, user=user, author=author)
+        subscription.delete()
 
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-        else:
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 # Приложение recipes
 
@@ -155,7 +152,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe = Recipe.objects.filter(pk=pk).first()
             if not recipe:
                 return Response({'detail': 'Несуществующий рецепт'},
-                                status=status.HTTP_404_NOT_FOUND)
+                                status=status.HTTP_400_BAD_REQUEST)
 
             favorite, created = Favorite.objects.get_or_create(
                 user=user, recipe=recipe)
@@ -167,11 +164,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 recipe, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        elif request.method == 'DELETE':
-            recipe = get_object_or_404(Recipe, pk=pk)
-            favorite = get_object_or_404(Favorite, user=user, recipe=recipe)
-            favorite.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+        recipe = get_object_or_404(Recipe, pk=pk)
+        favorite = get_object_or_404(Favorite, user=user, recipe=recipe)
+        favorite.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=('post', 'delete'))
     def shopping_cart(self, request, pk=None):
@@ -192,18 +188,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response({'detail': 'Рецепта нет в списке покупок.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        elif self.request.method == 'POST':
-            recipe = get_object_or_404(Recipe, pk=pk)
-            if ShoppingList.objects.filter(user=user, recipe=recipe).exists():
-                raise exceptions.ValidationError(
-                    'Рецепт уже в списке покупок.')
+        recipe = get_object_or_404(Recipe, pk=pk)
+        if ShoppingList.objects.filter(user=user, recipe=recipe).exists():
+            raise exceptions.ValidationError('Рецепт уже в списке покупок.')
 
-            ShoppingList.objects.create(user=user, recipe=recipe)
-            serializer = SmallRecipeSerializer(
-                recipe, context={'request': request})
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        ShoppingList.objects.create(user=user, recipe=recipe)
+        serializer = SmallRecipeSerializer(
+            recipe, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(
         detail=False,
