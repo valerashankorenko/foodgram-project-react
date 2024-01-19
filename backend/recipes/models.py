@@ -164,7 +164,7 @@ class IngredientInRecipes(models.Model):
         validators=(MinValueValidator(
             1, message='Введите положительное число'),
             MaxValueValidator(
-            32767, message='Введите число, не превышающее 32767'),)
+            10000, message='Введите число, не превышающее 10000'),)
     )
 
     class Meta:
