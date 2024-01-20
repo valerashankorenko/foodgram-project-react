@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import (MaxLengthValidator, RegexValidator,
-                                    ValidationError)
+from django.core.validators import (MaxLengthValidator, MinLengthValidator,
+                                    RegexValidator, ValidationError)
 from django.db import models
 
 
@@ -32,7 +32,8 @@ class User(AbstractUser):
     password = models.CharField(
         'Пароль',
         max_length=150,
-        validators=(MaxLengthValidator(150),),
+        validators=(MinLengthValidator(8),
+                    MaxLengthValidator(150),),
     )
 
     USERNAME_FIELD = 'email'

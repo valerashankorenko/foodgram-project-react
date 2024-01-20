@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import (MaxLengthValidator, MaxValueValidator,
-                                    MinValueValidator)
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
@@ -22,7 +21,8 @@ class UserRegistrationSerializer(UserCreateSerializer):
 
     password = serializers.CharField(
         max_length=150,
-        validators=(MaxLengthValidator(150),),
+        validators=(MinValueValidator(8),
+                    MaxValueValidator(150),),
         write_only=True,
     )
 
@@ -233,19 +233,10 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 'ingredients': 'Обязательное поле.'})
 
         ingredient_list = []
-        for ingredient_item in ingredients:
-            ingredient = get_object_or_404(Ingredient,
-                                           id=ingredient_item['id'])
+        for ingredient in ingredients:
             if ingredient in ingredient_list:
                 raise ValidationError('Ингредиент повторяется.')
             ingredient_list.append(ingredient)
-
-        amount = ingredient_item['amount']
-        if amount is not None and int(amount) < 1:
-            raise ValidationError(
-                {'ingredients': 'Количество ингредиента должно больше 1'}
-            )
-
         return data
 
     def create(self, validated_data):

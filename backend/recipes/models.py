@@ -2,7 +2,7 @@ from typing import Optional
 
 from django.contrib.auth import get_user_model
 from django.core.validators import (MaxValueValidator, MinValueValidator,
-                                    RegexValidator, ValidationError)
+                                    RegexValidator)
 from django.db import models
 from django.db.models import Exists, OuterRef
 
@@ -23,10 +23,11 @@ class Tag(models.Model):
         max_length=7,
         help_text='HEX формат цветового кода (#RRGGBB)',
         unique=True,
+        db_index=True,
         validators=(
             RegexValidator(
-                regex=r'^#(?:[0-9a-fA-F]{3}){1,2}$',
-                message='Введите корректный HEX-код цвета',
+                regex=r'^#(?:[0-9A-F]{3}){1,2}$',
+                message='Введите корректный HEX-код цвета в формате #RRGGBB',
                 code='invalid_color'
             ),
         ),
@@ -35,6 +36,7 @@ class Tag(models.Model):
         'Слаг',
         max_length=200,
         unique=True,
+        db_index=True,
     )
 
     class Meta:
@@ -43,14 +45,6 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
-
-    def clean(self):
-        if Tag.objects.filter(color=self.color).exclude(pk=self.pk).exists():
-            raise ValidationError('Тег с таким цветом уже существует')
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
 
 
 class Ingredient(models.Model):
