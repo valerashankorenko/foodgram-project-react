@@ -19,13 +19,6 @@ User = get_user_model()
 class UserRegistrationSerializer(UserCreateSerializer):
     """Сериализатор для создания пользователя"""
 
-    password = serializers.CharField(
-        max_length=150,
-        validators=(MinValueValidator(8),
-                    MaxValueValidator(150),),
-        write_only=True,
-    )
-
     class Meta(UserCreateSerializer.Meta):
         fields = (
             'email',
