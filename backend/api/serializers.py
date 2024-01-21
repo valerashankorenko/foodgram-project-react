@@ -227,15 +227,20 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
         ingredient_list = []
         for ingredient in ingredients:
-            if ingredient in ingredient_list:
-                raise ValidationError('Ингредиент повторяется.')
-            ingredient_list.append(ingredient)
+            if ingredient['id'] in ingredient_list:
+                raise ValidationError({'ingredients': 'Ингредиент повторяется.'})
+            ingredient_list.append(ingredient['id'])
         return data
 
     def create(self, validated_data):
         author = self.context.get('request').user
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
+
+        recipe = Recipe.objects.filter(**validated_data).first()
+
+        if recipe:
+            return recipe
 
         with transaction.atomic():
             recipe, created = Recipe.objects.get_or_create(
