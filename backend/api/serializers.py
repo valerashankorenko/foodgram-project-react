@@ -228,7 +228,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         ingredient_list = []
         for ingredient in ingredients:
             if ingredient['id'] in ingredient_list:
-                raise ValidationError({'ingredients': 'Ингредиент повторяется.'})
+                raise ValidationError(
+                    {'ingredients': 'Ингредиент повторяется.'})
             ingredient_list.append(ingredient['id'])
         return data
 
