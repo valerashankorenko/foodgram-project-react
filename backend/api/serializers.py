@@ -291,6 +291,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         exclude = ('pub_date',)
+        unique_together = ('author', 'name')
 
 
 class SmallRecipeSerializer(serializers.ModelSerializer):
