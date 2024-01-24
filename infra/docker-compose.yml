@@ -8,11 +8,13 @@ volumes:
 services:
   db:
     image: postgres:13.10
+    restart: always
     env_file: .env
     volumes:
       - pg_data_foodgram:/var/lib/postgresql/data
   backend:
     image: valeron90/foodgram_backend:latest
+    restart: always
     volumes:
       - static_foodgram:/app/static/
       - media_foodgram:/app/media/
@@ -26,6 +28,7 @@ services:
       - ../frontend/:/app/result_build/
   nginx:
     image: nginx:1.19.3
+    restart: always
     env_file: .env
     ports:
       - '8000:80'

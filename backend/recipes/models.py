@@ -128,6 +128,7 @@ class Recipe(models.Model):
 
     class Meta:
         ordering = ('-pub_date', 'name',)
+        unique_together = ('author', 'name')
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
 
