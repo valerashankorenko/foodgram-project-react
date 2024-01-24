@@ -214,6 +214,13 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, data):
+        author = self.context.get('request').user
+        name = data.get('name')
+        if Recipe.objects.filter(author=author, name=name).exists():
+            raise ValidationError(
+                {'name': ('Рецепт с таким названием уже'
+                          'существует для данного автора.')})
+
         tags = data.get('tags')
         if not tags:
             raise ValidationError({'tags': 'Обязательное поле.'})
